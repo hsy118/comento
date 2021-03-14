@@ -1,28 +1,45 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <header class="header">[제출일] 한승엽</header>
+    <hr>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+:root {
+  --header-padding: 0.6rem;
+  --base-width: 76vw;
+  --base-border-radius: 5px;
+
+  --login-width: 280px;
+  --login-btn-color: #2DB400;
+  --login-text-color: #eeeeee;
+  --navbar-opacity: 0.5;
+  
+  --content-width: 100%;
+  --content-header-color: lightslategrey;
+  --cards-border: 2px solid lightgrey;
+  --cards-padding: 18px 24px;
+  --cards-title-font-size: 2rem;
+  --cards-title-font-weight: 600;
+  --cards-content-margin-top: 25px;
+
+  
+}
+.header{
+  color:red;
+  padding: var(--header-padding);
+  display: block;
+  width: var(--base-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
