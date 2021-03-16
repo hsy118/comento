@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {requestList, requestAds} from "@/apis/list_api.js"
+import {requestList, requestAds, requestDetail} from "@/apis/list_api.js"
 
 Vue.use(Vuex)
 
@@ -27,6 +27,11 @@ export default new Vuex.Store({
     adsTime: 1,
 
     isModal: false,
+    filteredList: [],
+
+    detailView: {},
+    reply: [],
+    
   },
   getters: {
     getAdsList(state) {
@@ -59,6 +64,15 @@ export default new Vuex.Store({
     getCategory(state) {
       return state.category
     },
+    get_detail(state) {
+      return state.detailView
+    },
+    get_reply(state) {
+      return state.reply
+    },
+    get_filteredList(state) {
+      return state.filteredList
+    }
   },
   mutations: {
     PUT_ADS(state, ad) {
@@ -99,17 +113,28 @@ export default new Vuex.Store({
     },
     CATEGORY_EDIT(state, categories) {
       state.category = categories
-      console.log(categories)
+      state.filteredList = categories
     },
     OFF_MODAL(state) {
       state.isModal = false
     },
+    PUT_DETAIL(state, detailView) {
+      state.detailView = detailView
+    },
+    PUT_REPLY(state, reply) {
+      state.reply = reply
+    },
+    OUT_DETAIL(state) {
+      state.detailView = {}
+      state.reply = []
+    }
   },
   // state에서 바로 가져온거 getters로 수정
   actions: {
     CATEGORY_EDIT(context, categories) {
       context.commit("RE_ORDER")
       context.commit("CATEGORY_EDIT", categories)
+      console.log(categories)
     },
     OFF_MODAL(context) {
       context.commit("OFF_MODAL")
@@ -139,7 +164,6 @@ export default new Vuex.Store({
           for (let key in data) {
             context.commit("PUT_CONTENTS", data[key])
           }
-          console.log(res.data)
           // ads
           let ads = res2.data.data
           for (let ad in ads) {
@@ -170,5 +194,30 @@ export default new Vuex.Store({
         console.log(err)
       }
     },
+
+    async GET_DETAIL(context, itemId) {
+      try {
+        const res = await requestDetail(itemId)
+        console.log(itemId)
+        setTimeout(() => {
+          const data = res.data.data
+          const date = data.created_at.substring(0, 10)
+          console.log(data.reply)
+          const detailView = {
+            title: data[`title`],
+            content: data[`contents`],
+            created_at: date
+          }
+          context.commit("PUT_DETAIL", detailView)
+          context.commit("PUT_REPLY", data.reply)
+        }, 500)
+      }
+      catch(err) {
+        console.log(err)
+      }
+    },
+    OUT_DETAIL(context) {
+      context.commit("OUT_DETAIL")
+    }
   },
 })

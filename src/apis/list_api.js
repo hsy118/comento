@@ -28,8 +28,20 @@ function requestAds(page, limit) {
       })
 }
 
+//디테일 요청
+function requestDetail(itemId) {
+  return axios({
+    method: "GET",
+    url: `${SERVER_URL}/api/view`,
+    params: {
+      id: itemId
+    }
+  })
+}
+
 
 export {
     requestList,
     requestAds,
+    requestDetail,
 }

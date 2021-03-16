@@ -2,7 +2,7 @@
   <div>
     <header class="header">[제출일] 한승엽</header>
     <hr>
-    <Modal v-if="isModal" />
+    <Modal v-show="isModal"/>
     <router-view></router-view>
   </div>
 </template>
@@ -11,6 +11,14 @@
 import Modal from "@/components/Modal.vue"
 
 export default {
+  data() {
+    return {
+      filtering: [],
+    }
+  },
+  methods: {
+
+  },
   components: {
     Modal,
   },

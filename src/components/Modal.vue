@@ -2,20 +2,20 @@
   <div class="modal">
     <div class="modal__content">
       <div class="modal__nav">
-        <a href="">X</a> 
+        <a @click="exitModal">X</a> 
       </div>
       <div class="modal__header">필터</div>
       <ul class="modal__body">
         <li> 
-            <input type="checkbox" id="cat1" value="1" v-model="category">
+            <input type="checkbox" id="cat1" value="1" v-model="checkedList">
             <label for="cat1">category_name : 1</label> 
         </li>
         <li> 
-            <input type="checkbox" id="cat2" value="2" v-model="category">
+            <input type="checkbox" id="cat2" value="2" v-model="checkedList">
             <label for="cat2">category_name : 2</label> 
         </li>
         <li> 
-            <input type="checkbox" id="cat3" value="3" v-model="category">
+            <input type="checkbox" id="cat3" value="3" v-model="checkedList">
             <label for="cat3">category_name : 3</label> 
         </li>
       </ul>
@@ -28,19 +28,35 @@
 
 
 <script>
+
 export default {
   data() {
     return {
-      category: [],
+      checkedList: [],
     }
   },
   methods:{
+    exitModal() {
+      this.$store.dispatch("OFF_MODAL")
+    },
     onSubmit() {
-      this.$store.dispatch("CATEGORY_EDIT", this.category)
+      let filteredList = this.checkedList
+      if (this.checkedList.length === 0) {
+        filteredList = ['1', '2', '3']
+      }
+      this.$store.dispatch("CATEGORY_EDIT", filteredList)
       this.$store.dispatch("OFF_MODAL")
     },
   },
-  }
+  computed: {
+    category() {
+      return this.$store.getters.get_filteredList
+    },
+  },
+  watch: {
+  },
+
+}
 </script>
 <style lang="scss">
 $module : 'modal';
@@ -65,6 +81,9 @@ $green: #2DB400;
       display: flex;
       flex-direction: row-reverse;
       width: 100%;
+      &:hover {
+        cursor: pointer;
+      }
       a {
         text-decoration:  none;
       }
@@ -89,6 +108,9 @@ $green: #2DB400;
       background-color: $green;
       border-radius: 5px;
       color: #fff;
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 

@@ -25,6 +25,7 @@
       v-for="(item, idx) in list"
       :key="idx"
       :item="list[idx]"
+      @click="onDetail(item.id)"
       >
         <div v-if="!item.img">
           <div class="card__header">
@@ -57,9 +58,7 @@
         </section>
 
       </section>
-    <!-- 광고 -->
         
-
     </section>
   </div>
 </template>
@@ -69,17 +68,27 @@
 // import axios from "axios"
 
 // const SERVER_URL = `https://problem.comento.kr`
-
+import router from "@/router/index.js"
 export default {
   name: "main",
   data() {
     return {
-      
+      isMain: false,
+    }
+  },
+  props:{
+    listF: {
+      type: Array,
     }
   },
   methods: {
+    onDetail(id) {
+    const a = router.push(`/detail/${id}`)
+    console.log(a)
+    },
     onModal() {
       this.$store.dispatch("ON_MODAL")
+      this.$emit('onFilter')
     },
     loadMore() {
       this.loading = true
@@ -122,7 +131,7 @@ export default {
   watch: {
     category() {
       this.$store.dispatch("GET_LIST")
-    }
+    },
   },
   computed: {
     list() {
@@ -138,10 +147,12 @@ export default {
   mounted() {
     // 오더 기본값 설정
     this.orderAsc()
+    // 메인 피드에서만 하겠금
+    this.isMain = true
     // 스크롤이 밑으로 가면 감지
     window.addEventListener('scroll', () => {
       const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
-      if(clientHeight + scrollTop >= scrollHeight - 5) {
+      if(clientHeight + scrollTop >= scrollHeight - 5 && this.isMain) {
 		    if (this.$store.getters.getLoading === false)
         this.loadMore();
 	    }
@@ -151,10 +162,14 @@ export default {
   },
   filters: {
     dateFilter: function(date) {
-        return date.substring(0,9)
+        return date.substring(0,10)
       }
     },
-
+  destroyed() {
+    //스크롤 이벤트 중지
+    this.isMain = false
+    this.$store.dispatch("RE_ORDER")
+  }
 }
 </script>
 
