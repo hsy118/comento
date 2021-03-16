@@ -24,8 +24,19 @@
   </div>
 </template>
 
-<style>
-
+<style lang="sass">
+$module : 'my-modal'
+.#{$module} {
+  display: flex
+  align-items: center
+  justify-content: center
+  position: fixed
+  z-index: 30
+  background-color: rgba(0,0,0,.7)
+  // top: 0; right: 0; bottom: 0; left: 0;
+  position: fixed
+  margin: 0
+}
 </style>
 
 <script>
