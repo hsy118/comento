@@ -19,7 +19,7 @@ export default new Vuex.Store({
     page: 1,
     order: '',
     limit: 10,
-    category: [1,2,3],
+    category: ['1','2','3'],
     loading: false,
 
     conCnt: 0,
@@ -55,6 +55,9 @@ export default new Vuex.Store({
     },
     getIsModal(state) {
       return state.isModal
+    },
+    getCategory(state) {
+      return state.category
     },
   },
   mutations: {
@@ -94,15 +97,28 @@ export default new Vuex.Store({
     ON_MODAL(state) {
       state.isModal = true
     },
+    CATEGORY_EDIT(state, categories) {
+      state.category = categories
+      console.log(categories)
+    },
+    OFF_MODAL(state) {
+      state.isModal = false
+    },
   },
   // state에서 바로 가져온거 getters로 수정
   actions: {
+    CATEGORY_EDIT(context, categories) {
+      context.commit("RE_ORDER")
+      context.commit("CATEGORY_EDIT", categories)
+    },
+    OFF_MODAL(context) {
+      context.commit("OFF_MODAL")
+    },
     ON_MODAL(context) {
       context.commit("ON_MODAL")
     },
     RE_ORDER(context) {
       context.commit("RE_ORDER")
-      // this.GET_LIST()
     },
     ORD_EDIT(context, ord) {
       context.commit("PUT_ORDER", ord)
@@ -129,7 +145,6 @@ export default new Vuex.Store({
           for (let ad in ads) {
             context.commit("PUT_ADS", ads[ad])
           }
-          this.state.limit += 10
           this.state.page += 1
           console.log(res2.data)
           // ads + contents

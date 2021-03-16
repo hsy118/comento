@@ -97,7 +97,9 @@ export default {
     },
     
     changeOrder(val) {
+      this.$store.dispatch("RE_ORDER")
       this.$store.dispatch("ORD_EDIT", val)
+      this.$store.dispatch("GET_LIST")
       const asc = document.querySelector(".navbar__sorts__asc")
       const dotAsc = document.querySelector(".dot-asc")
       const desc = document.querySelector(".navbar__sorts__desc")
@@ -118,8 +120,7 @@ export default {
     },
   },
   watch: {
-    order() {
-      this.$store.dispatch("RE_ORDER")
+    category() {
       this.$store.dispatch("GET_LIST")
     }
   },
@@ -130,6 +131,9 @@ export default {
     order() {
       return this.$store.getters.getOrder
     },
+    category() {
+      return this.$store.getters.getCategory
+    },
   },
   mounted() {
     // 오더 기본값 설정
@@ -137,7 +141,6 @@ export default {
     // 스크롤이 밑으로 가면 감지
     window.addEventListener('scroll', () => {
       const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
-      console.log(scrollTop, scrollHeight, clientHeight);
       if(clientHeight + scrollTop >= scrollHeight - 5) {
 		    if (this.$store.getters.getLoading === false)
         this.loadMore();
