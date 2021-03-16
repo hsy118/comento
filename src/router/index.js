@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Main from '@/views/main.vue'
+import MainFeed from '@/views/mainFeed.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Main',
-    component: Main
+    name: 'MainFeed',
+    component: MainFeed
   },
 ]
 

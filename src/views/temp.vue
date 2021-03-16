@@ -9,30 +9,32 @@
       <!-- 네브 바 -->
       <div class="content__navbar">
         <div class="navbar__sorts">
-          <span class="navbar__sorts__btn">
-            <span class="dot"></span>오름차순
+          <span class="navbar__sorts__asc" @click="changeOrder(`asc`)">
+            <span class="dot-asc"></span>오름차순
           </span>
-          <span class="navbar__sorts__btn">
-            <span class="dot"></span>내림차순
+          <span class="navbar__sorts__desc" @click="changeOrder(`desc`)">
+            <span class="dot-desc"></span>내림차순
           </span>
         </div>
         <button class="navbar__filter__btn">필터</button>
       </div>
       <!-- 카드 섹션 -->
-      <section class="cards">
+      <section class="cards" v-for="(item, idx) in list"
+      :key="item.id"
+      :item="list[idx]">
 
         <div class="card__header">
-          <div class="card__category">card_category</div>
-          <div class="card__id">card_id</div>
+          <div class="card__category">{{item.category_id}}</div>
+          <div class="card__id">{{item.id}}</div>
         </div>
         <div class="card__body">
           <div class="card__body__header">
-            <div class="body__user-id">user_id</div>
-            <div class="body__created-at">created-at(2020-02-02)</div>
+            <div class="body__user-id">{{item.user_id}}</div>
+            <div class="body__created-at">created_at({{item.created_at | dateFilter}})</div>
           </div>
           <div class="card__body__main">
-            <div class="main__title">title title title title title title title title </div>
-            <div class="main__content">content content content content content content content content </div>
+            <div class="main__title">{{item.title}}</div>
+            <div class="main__content">{{item.contents}}</div>
           </div>
         </div>
 
@@ -50,17 +52,121 @@
         </div>
         
       </section>
+    <!-- infinite loading -->
+    <!-- <infinite-loading
+      @infinite="infiniteHandler"
+      ref="infiniteLoading"
+    >
+      <div slot="no-more">목록의 끝입니다 :)</div>
+      <div slot="no-results">목록이 비어있습니다 :(</div>
+    </infinite-loading> -->
 
     </section>
-
   </div>
 </template>
 
 <script>
+// import InfiniteLoading from "vue-infinite-loading";
+import axios from "axios"
+
+const SERVER_URL = `https://problem.comento.kr`
 
 export default {
   name: "main",
-  
+  components: {
+    // InfiniteLoading,
+  },
+  data() {
+    return {
+      mainList: [],
+      list: [],
+      filter: '',
+      page: 1,
+      order: '',
+      limit: 10,
+      category: [1,2,3],
+    }
+  },
+  methods: {
+    infiniteHandler($state) {
+      axios({
+        method: "get",
+        url: `${SERVER_URL}/api/list`,
+        params: {
+          page: this.page,
+          ord: this.order,
+          category: this.category,
+          limit: this.limit,
+        },
+      })
+      .then((res) => {
+        // console.log(res)
+        // console.log(this.list)
+        setTimeout(() => {
+          if (res.data.total > this.limit || res.data.last_page > this.page) {
+            let data = res.data.data
+            for (let key in data) {
+              this.list.push(data[key])
+            }
+            this.limit += 10
+            this.page += 1
+            $state.loaded()
+          } else {
+            $state.complete()
+          }
+        }, 1000)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      this.$store.dispatch("GET_ADS", this.page, this.limit)
+    },
+
+    orderAsc () {
+      this.order = "asc"
+      const asc = document.querySelector(".navbar__sorts__asc")
+      const dot = document.querySelector(".dot-asc")
+      asc.style.color = "#2DB400"
+      dot.style.backgroundColor = "#2DB400"
+    },
+    
+    changeOrder(val) {
+      this.order = val;
+      const asc = document.querySelector(".navbar__sorts__asc")
+      const dotAsc = document.querySelector(".dot-asc")
+      const desc = document.querySelector(".navbar__sorts__desc")
+      const dotDesc = document.querySelector(".dot-desc")
+      if (val === 'asc') {
+        asc.style.color = "#2DB400"
+        dotAsc.style.backgroundColor = "#2DB400"
+        // 다른 차순 초기화
+        desc.style.color = "lightslategrey"
+        dotDesc.style.backgroundColor = "lightslategrey"
+      } else {
+        desc.style.color = "#2DB400"
+        dotDesc.style.backgroundColor = "#2DB400"
+        // 다른 차순 초기화
+        asc.style.color = "lightslategrey"
+        dotAsc.style.backgroundColor = "lightslategrey"
+      }
+    },
+  },
+  watch: {
+    order() {
+      this.list = []
+      this.limit = 10
+      this.page = 1
+      this.$refs.infiniteLoading.stateChanger.reset();
+    }
+  },
+  mounted() {
+    this.orderAsc()
+  },
+  filters: {
+    dateFilter: function(date) {
+        return date.substring(0,9)
+      }
+    },
 }
 </script>
 
@@ -95,16 +201,33 @@ export default {
     justify-content: space-between;
     margin-bottom: 10px;
   }
-  .navbar__sorts__btn{
-    color: lightslategrey;
+  .navbar__sorts__asc {
+    color: var(--content-header-color);
   }
-  .navbar__sorts__btn:nth-child(1) {
+  .navbar__sorts__desc {
+    color: var(--content-header-color);
+  }
+  .navbar__sorts__asc.active,
+  .navbar__sorts__desc.active,
+  .dot-asc.active,
+  .dot-desc.active {
+    color: var(--login-btn-color);
+  }
+  .navbar__sorts__desc {
     margin-right: 10px;
   }
-  .dot {
+  .dot-asc {
     height: 12px;
     width: 12px;
-    background-color: lightslategrey;
+    background-color: var(--content-header-color);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  .dot-desc {
+    height: 12px;
+    width: 12px;
+    background-color: var(--content-header-color);
     border-radius: 50%;
     display: inline-block;
     margin-right: 6px;
@@ -149,13 +272,13 @@ export default {
   .main__title {
     font-size: var(--cards-title-font-size);
     font-weight: var(--cards-title-font-weight);
-    
+    margin-bottom: 0.6em;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
     /* line-height: 1.2; */
     display: -webkit-box;
-    height: 1.2em;
+    height: 1.3em;
     text-align: left;
     word-wrap: break-word;
     -webkit-line-clamp: 1;
@@ -165,9 +288,9 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
-    line-height: 1.2;
+    line-height: 1.3;
     display: -webkit-box;
-    height: 1.2em;
+    height: 1.3em;
     text-align: left;
     word-wrap: break-word;
     -webkit-line-clamp: 1;
@@ -208,7 +331,7 @@ export default {
     white-space: normal;
     /* line-height: 1.2; */
     display: -webkit-box;
-    height: 2.4em;
+    height: 2.6em;
     text-align: left;
     word-wrap: break-word;
     -webkit-line-clamp: 2;
@@ -218,7 +341,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
-    line-height: 1.2;
+    line-height: 1.2em;
     display: -webkit-box;
     height: 4.8em;
     text-align: left;
