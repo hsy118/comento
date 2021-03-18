@@ -2,11 +2,14 @@
   <div class="modal">
     <div class="modal__content">
       <div class="modal__nav">
+        <!-- 나가기 버튼 영역 -->
         <a @click="exitModal">X</a> 
       </div>
+      <!-- 타이틀 -->
       <div class="modal__header">필터</div>
       <ul class="modal__body">
-        <li> 
+        <!-- 카테고리 리스트 -->
+        <li>
             <input type="checkbox" id="cat1" value="1" v-model="checkedList">
             <label for="cat1">category_name : 1</label> 
         </li>
@@ -20,6 +23,7 @@
         </li>
       </ul>
       <div class="modal__footer">
+        <!-- 버튼영역 -->
           <a class="modal__btn" @click="onSubmit">저장하기</a>
       </div>
     </div>
@@ -37,9 +41,11 @@ export default {
   },
   methods:{
     exitModal() {
+      // 모달 종료
       this.$store.dispatch("OFF_MODAL")
     },
     onSubmit() {
+      // 필터 내용 전송
       let filteredList = this.checkedList
       if (this.checkedList.length === 0) {
         filteredList = ['1', '2', '3']
@@ -90,6 +96,7 @@ $green: #2DB400;
     }
     .modal__header {
       font-weight: 700;
+      font-size: 1.5rem;
     }
     .modal__body {
       list-style: none;
@@ -108,11 +115,22 @@ $green: #2DB400;
       background-color: $green;
       border-radius: 5px;
       color: #fff;
+      box-shadow: 0.5 0.5 grey;
       &:hover {
         cursor: pointer;
       }
     }
   }
-
+}
+@media screen and (max-width: 768px) {
+  .modal__content {
+    width: 75%;
+    .modal__footer {
+      .modal__btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
 }
 </style>

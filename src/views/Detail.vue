@@ -1,5 +1,6 @@
 <template>
   <div class="detail">
+    <!-- 글 상세 정보 -->
     <section class="article">
       <div class="article__title">
          {{article.title}}
@@ -12,6 +13,7 @@
       </p>
     </section>
     <section class="reply" >
+      <!-- 댓글 영역 -->
       <p class="reply__header">답변 <span class="reply__num">2</span></p>
       <div class="comment" v-for="(comment, idx) in reply" :key="idx">
         <div class="comment__user-name">
@@ -34,10 +36,10 @@ export default {
       return parseInt(itemId[`id`])
     },
     article() {
-      return this.$store.getters.get_detail
+      return this.$store.getters.getDetail
     },
     reply() {
-      return this.$store.getters.get_reply
+      return this.$store.getters.getReply
     }
 
   },
@@ -57,24 +59,7 @@ export default {
 </script>
 
 <style lang="scss">
-@mixin cardLayout($color)  {
-  border: 2px solid $color;
-  border-radius: 5px;
-  padding: 1em; 
-}
-@mixin mobileCardLayout($color) {
-  border-top: 2px solid $color !important;
-  border-right: none !important;
-  border-bottom: 2px solid $color !important;
-  border-left: none !important;
-  border-radius: 0 !important;
-}
-
-@mixin date() {
-  font-size: 14px;
-  margin-bottom: 0;
-  color: $grey;
-}
+@import '@/assets/scss/main';
 
 $radius: 5px;
 $grey : lightslategrey;
@@ -83,6 +68,7 @@ $green: #2DB400;
   .detail {
     width: 82vw;
     margin: 50px auto 0 auto;
+
     .article {
       @include cardLayout($green);
 
@@ -109,9 +95,11 @@ $green: #2DB400;
       .comment{
         @include cardLayout($grey);
         margin-bottom: 1em;
+        padding: 1em;
         &__user-name {
           padding-bottom: 1em;
           border-bottom: 2px solid $grey;
+          color: $grey;
         }
         &__content {
           margin-top: 17px;
@@ -128,11 +116,20 @@ $green: #2DB400;
       .article {
         @include mobileCardLayout($green);
       }
-      .comment__user-name {
-        padding-top: 1em;
+      .reply__header{
+        width: 90%;
       }
       .comment {
         @include mobileCardLayout($grey);
+        padding: 0!important;
+        .comment__user-name {
+          padding-top: 1.6em;
+          width: 100%;
+          border-bottom: 1px solid $grey;
+        }
+        .comment__date {
+          margin-bottom: 1em;
+        }
       }
     }
   }

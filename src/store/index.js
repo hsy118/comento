@@ -1,37 +1,26 @@
-// import axios from 'axios'
-
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {requestList, requestAds, requestDetail} from "@/apis/list_api.js"
 
 Vue.use(Vuex)
-
-// const SERVER_URL = `https://problem.comento.kr`
-// const IMG_PATH = `https://cdn.comento.kr/assignment`
-
 export default new Vuex.Store({
   state: {
     mainList: [],
     adsList : [],
     conList: [],
-
     page: 1,
     order: '',
     limit: 10,
     category: ['1','2','3'],
     loading: false,
-
     conCnt: 0,
     adsCnt: 0,
     adsTime: 1,
-
     isModal: false,
     filteredList: [],
-
     detailView: {},
     reply: [],
-    
   },
   getters: {
     getAdsList(state) {
@@ -42,6 +31,12 @@ export default new Vuex.Store({
     },
     getOrder(state) {
       return state.order
+    },
+    getPage(state) {
+      return state.page
+    },
+    getLimit(state) {
+      return state.limit
     },
     getTotal(state) {
       return state.mainList
@@ -64,15 +59,12 @@ export default new Vuex.Store({
     getCategory(state) {
       return state.category
     },
-    get_detail(state) {
+    getDetail(state) {
       return state.detailView
     },
-    get_reply(state) {
+    getReply(state) {
       return state.reply
     },
-    get_filteredList(state) {
-      return state.filteredList
-    }
   },
   mutations: {
     PUT_ADS(state, ad) {
@@ -127,14 +119,15 @@ export default new Vuex.Store({
     OUT_DETAIL(state) {
       state.detailView = {}
       state.reply = []
-    }
+    },
+    ADD_PAGE(state) {
+      state.page += 1
+    },
   },
-  // state에서 바로 가져온거 getters로 수정
   actions: {
     CATEGORY_EDIT(context, categories) {
       context.commit("RE_ORDER")
       context.commit("CATEGORY_EDIT", categories)
-      console.log(categories)
     },
     OFF_MODAL(context) {
       context.commit("OFF_MODAL")
@@ -147,17 +140,22 @@ export default new Vuex.Store({
     },
     ORD_EDIT(context, ord) {
       context.commit("PUT_ORDER", ord)
-      console.log(ord)
     },
     async GET_LIST(context) {
+      // 글과 광고를 요청하고, 메인 피드에 보여줄 내용(컨텐츠3, 광고1)을 처리
+      const page = context.getters.getPage
+      const order = context.getters.getOrder
+      const category = context.getters.getCategory
+      const limit = context.getters.getLimit
       // 컨텐츠
       try {
+        // 로딩 문구 시작
         context.commit('START_LOADING')
         const res = await requestList(
-          this.state.page, this.state.order, 
-          this.state.category, this.state.limit
+          page, order, 
+          category, limit
         )
-        const res2 = await requestAds(this.state.page, this.state.limit)
+        const res2 = await requestAds(page, limit)
         setTimeout(() => {
           // contents list
           let data = res.data.data
@@ -169,12 +167,12 @@ export default new Vuex.Store({
           for (let ad in ads) {
             context.commit("PUT_ADS", ads[ad])
           }
-          this.state.page += 1
-          console.log(res2.data)
-          // ads + contents
-          const totalList = this.getters.getTotal
-          const conList = this.getters.getConList
-          const adsList = this.getters.getAdsList
+          context.commit("ADD_PAGE")
+          // 컨텐츠 3개 노출 후 광고 1개 삽입
+          let totalList = this.getters.getTotal
+          let conList = this.getters.getConList
+          let adsList = this.getters.getAdsList
+            // 컨텐츠의 순서대로 4번째 마다 광고를 삽입 하기 위한 과정
           for (let i = 0; i < 10; i++) {
             if (context.getters.getadsTime % 4 !== 0) {
               totalList.push(conList[this.getters.getconCnt])
@@ -186,7 +184,7 @@ export default new Vuex.Store({
               context.commit("ADD_CNT")
             }
           }
-          console.log(totalList)
+          // 로딩 문구 종료
           context.commit('STOP_LOADING')
         }, 500)
       }
@@ -196,13 +194,12 @@ export default new Vuex.Store({
     },
 
     async GET_DETAIL(context, itemId) {
+      // 상세 페이지 정보 조회를 위한 함수
       try {
         const res = await requestDetail(itemId)
-        console.log(itemId)
         setTimeout(() => {
           const data = res.data.data
           const date = data.created_at.substring(0, 10)
-          console.log(data.reply)
           const detailView = {
             title: data[`title`],
             content: data[`contents`],
@@ -217,6 +214,7 @@ export default new Vuex.Store({
       }
     },
     OUT_DETAIL(context) {
+      // 디테일 페이지를 나갔을 때,
       context.commit("OUT_DETAIL")
     }
   },
